@@ -540,7 +540,7 @@ class NewBookProcessor:
 
         try:
             if text:
-                match = re.match(r"^(.*?)\s*-\s*[\#FSA]?(?:part\s*)?(\d+)\s*-\s*(.*)\..{1,4}$", source_path.name)
+                match = re.match(r"^(.*?)\s*-\s*[\#FSA]?(?:part\s*)?(\d+)\s*-\s*(.*)\..{1,4}$", staged_path.name)
                 if match:
                     series = match.group(1).strip()
                     series_index = match.group(2)
