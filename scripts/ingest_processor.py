@@ -14,6 +14,7 @@ import time
 import shutil
 import sqlite3
 import fcntl
+import re
 from pathlib import Path
 
 from cwa_db import CWA_DB
@@ -539,7 +540,15 @@ class NewBookProcessor:
 
         try:
             if text:
-                subprocess.run(["calibredb", "add", str(staged_path), "--automerge", self.cwa_settings['auto_ingest_automerge'], f"--library-path={self.library_dir}"], env=self.calibre_env, check=True)
+                match = re.match(r"^(.*?)\s*-\s*[\#FSA]?(?:part\s*)?(\d+)\s*-\s*(.*)\..{1,4}$", source_path.name)
+                if match:
+                    series = match.group(1).strip()
+                    series_index = match.group(2)
+                    title = match.group(3).strip()
+                    subprocess.run(["calibredb", "add", str(staged_path), "--automerge", self.cwa_settings['auto_ingest_automerge'], "--title", title,
+                                    "--series", series, "--series-index", series_index, f"--library-path={self.library_dir}"], env=self.calibre_env, check=True)
+                else:                
+                    subprocess.run(["calibredb", "add", str(staged_path), "--automerge", self.cwa_settings['auto_ingest_automerge'], f"--library-path={self.library_dir}"], env=self.calibre_env, check=True)
             else: #if audiobook
                 meta = audiobook.get_audio_file_info(str(staged_path), format, os.path.basename(str(staged_path)), False)
                 identifiers = ""
