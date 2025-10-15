@@ -540,11 +540,12 @@ class NewBookProcessor:
 
         try:
             if text:
-                match = re.match(r"^(.*?)\s*-\s*[\#FSA]?(?:part\s*)?(\d+)\s*-\s*(.*)\..{1,4}$", staged_path.name)
+                pattern = re.compile(r"^(.*?)(?:\s*-\s*)?(?:SP|F|S|A|part|#)?(\d{2,3})(?:\s*\([^)]+\))?(?:\s*[^-]*?)?(?:\s*-?\s*(.*))?\..{1,4}$", re.IGNORECASE)
+                match = pattern.match(staged_path.name)
                 if match:
                     series = match.group(1).strip()
                     series_index = match.group(2)
-                    title = match.group(3).strip()
+                    title = match.group(3).strip() if match.group(3) else None
                     subprocess.run(["calibredb", "add", str(staged_path), "--automerge", self.cwa_settings['auto_ingest_automerge'], "--title", title,
                                     "--series", series, "--series-index", series_index, f"--library-path={self.library_dir}"], env=self.calibre_env, check=True)
                 else:                
